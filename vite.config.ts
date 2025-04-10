@@ -2,10 +2,10 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  root: 'src',     // <== 加這行！
-  base: './',
+  root: 'src',
+  base: '/ooxx/', // ⚠️ 你的 repo 名稱！
   build: {
-    outDir: '../dist'
+    outDir: '../dist',
+    emptyOutDir: true
   }
 });
-
