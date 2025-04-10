@@ -56,9 +56,9 @@ function resetGame() {
   renderBoard();
 }
 const soundPlayer = {
-  ai: new Audio('/sounds/ai.mp3'),
-  click: new Audio('/sounds/click.mp3'),
-}
+  ai: new Audio('sounds/ai.mp3'),
+  click: new Audio('sounds/click.mp3'),
+};
 
 function renderBoard() {
   boardElem.innerHTML = '';
