@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OX 對戰 AI</title>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @keyframes fade-in {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-out {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.4s ease-out forwards;
+    }
+
+    .animate-fade-out {
+      animation: fade-out 0.4s ease-in forwards;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 9999px;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #2563eb; /* Blue */
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(18px);
+    }
+  </style>
+
+  <script type="module" crossorigin src="./assets/index-Dmt5YJC4.js"></script>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<!-- 控制區 -->
+<div class="flex justify-between items-center px-4 py-3 shadow bg-white dark:bg-gray-800 sticky top-0 z-50">
+  <div class="flex gap-6 items-center text-sm">
+    <label class="flex items-center gap-2">
+      <span>音效</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="toggle-sound" checked />
+        <span class="slider"></span>
+      </div>
+    </label>
+    <label class="flex items-center gap-2">
+      <span>Trash Talk</span>
+      <div class="toggle-switch">
+        <input type="checkbox" id="toggle-trash" checked />
+        <span class="slider"></span>
+      </div>
+    </label>
+  </div>
+</div>
+
+<!-- 主區塊 -->
+<main class="flex flex-col items-center mt-6 gap-4 px-4">
+  <h1 class="text-3xl font-bold">OX 對戰 AI</h1>
+
+  <div id="board" class="grid grid-cols-3 gap-4 w-[320px]"></div>
+
+  <div id="talk"
+       class="hidden fixed top-5 right-5 max-w-xs bg-yellow-100 border border-yellow-300 text-yellow-900 rounded-xl px-4 py-3 shadow-lg flex items-start gap-2 z-50">
+    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="AI" class="w-5 h-5 mt-0.5" />
+    <span id="talk-text" class="text-sm leading-snug">AI trash talk</span>
+  </div>
+
+  <div id="spinner" class="hidden mt-2">
+    <div class="flex items-center justify-center gap-2">
+      <svg class="w-5 h-5 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+      </svg>
+      <span class="text-xs">AI 思考中...</span>
+    </div>
+  </div>
+
+  <button id="reset" class="mt-6 px-6 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium shadow">重新開始</button>
+</main>
+
+<div id="result-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-center w-[300px]">
+    <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-100">結果</h3>
+    <button id="modal-close" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">關閉</button>
+  </div>
+</div>
+</body>
+</html>
