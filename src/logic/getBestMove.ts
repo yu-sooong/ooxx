@@ -27,7 +27,9 @@ export function getBestMove(board: string[][]): { row: number; col: number } {
 export function minimax(board: string[][], depth: number, isMaximizing: boolean): number {
     const result = checkWinner(board);
     if (result !== null) {
-        return scores[result] - depth; // 越早贏越高分，越早輸越低分
+        const score = scores[result] - depth;
+        console.log(`[depth=${depth}] Result found: ${result}, score = ${score}`);
+        return score// 越早贏越高分，越早輸越低分
     }
 
     if (isMaximizing) {
@@ -38,6 +40,7 @@ export function minimax(board: string[][], depth: number, isMaximizing: boolean)
                     board[i][j] = 'O';
                     const score = minimax(board, depth + 1, false);
                     board[i][j] = '';
+                    console.log(`[depth=${depth}] Maximizing: tried (${i},${j}) => score ${score}`);
                     best = Math.max(score, best);
                 }
             }
@@ -51,6 +54,7 @@ export function minimax(board: string[][], depth: number, isMaximizing: boolean)
                     board[i][j] = 'X';
                     const score = minimax(board, depth + 1, true);
                     board[i][j] = '';
+                    console.log(`[depth=${depth}] Minimizing: tried (${i},${j}) => score ${score}`);
                     best = Math.min(score, best);
                 }
             }
