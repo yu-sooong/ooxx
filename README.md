@@ -13,10 +13,6 @@
 
 ---
 
-## 🎬 Demo 螢幕錄影
-
-> 💡 點擊下方影片觀看 AI 如何運算與嘴砲對話！
-
 ## 🎬 Demo 影片
 
 [![Watch the video](https://img.youtube.com/vi/wteKPhDTANw/hqdefault.jpg)](https://www.youtube.com/watch?v=wteKPhDTANw)
