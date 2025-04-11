@@ -13,17 +13,14 @@
 
 ---
 
-## 📸 Demo 截圖
-
-![OX AI Demo](https://raw.githubusercontent.com/yu-sooong/ting-image/refs/heads/main/Snipaste_2025-04-11_16-49-49.png)
-
----
-
 ## 🎬 Demo 螢幕錄影
 
 > 💡 點擊下方影片觀看 AI 如何運算與嘴砲對話！
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/wteKPhDTANw?si=k-Jck4BYNqnk3bYn" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+## 🎬 Demo 影片
+
+[![Watch the video](https://img.youtube.com/vi/wteKPhDTANw/hqdefault.jpg)](https://www.youtube.com/watch?v=wteKPhDTANw)
+
 
 ---
 
