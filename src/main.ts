@@ -1,13 +1,17 @@
-// main.ts
-import { getBestMove } from './api/ai.ts';
-import { checkWinner } from './utils/game.ts';
+import { getBestMove } from './logic/getBestMove';
+import { checkWinner } from './logic/checkWinner';
+import { initBoard } from './utils/initBoard';
+import { speak } from './utils/speak';
+import { renderBoard } from './ui/renderBoard';
+import { showTrashTalk } from './ui/showTrashTalk';
+import { soundPlayer } from './sound/soundPlayer';
+import { trashTalks } from './data/trashTalks';
 
-let board: string[][] = Array.from({ length: 3 }, () => Array(3).fill(''));
+let board = initBoard();
 let isThinking = false;
 let soundEnabled = true;
 let trashTalkEnabled = true;
 
-const boardElem = document.getElementById('board')!;
 const resetBtn = document.getElementById('reset')!;
 const modal = document.getElementById('result-modal')!;
 const modalTitle = document.getElementById('modal-title')!;
@@ -17,158 +21,66 @@ const talkElem = document.getElementById('talk')!;
 const talkText = document.getElementById('talk-text')!;
 const soundToggle = document.getElementById('toggle-sound') as HTMLInputElement;
 const trashToggle = document.getElementById('toggle-trash') as HTMLInputElement;
-const themeToggle = document.getElementById('theme-toggle') as HTMLInputElement;
 
-const trashTalks = [
-  "這步你真的想清楚了嗎？",
-  "你還有機會... 雖然不大。",
-  "看起來你快投降了。",
-  "我會讓你見識到什麼叫完美布局。",
-  "準備好了嗎？這次我認真了。",
-  "你這樣下，太天真了。",
-  "你這樣下，是想幫我嗎？",
-  "這場對決注定只有一個勝者。",
-  "你的 O 有點迷路了。",
-  "你是不是走錯房間了？這是高手區。",
-  "你還好嗎？要不要我讓一步。",
-  "下得不錯…對我來說啦。",
-  "這種局面，我閉著眼也能贏。",
-  "這招我已經見過 101 次了。",
-  "年輕人、有讀書嗎。",
-];
+soundToggle.addEventListener('change', () => soundEnabled = soundToggle.checked);
+trashToggle.addEventListener('change', () => trashTalkEnabled = trashToggle.checked);
 
-// 初始化主題
-
-soundToggle.addEventListener('change', () => {
-  soundEnabled = soundToggle.checked;
+resetBtn.addEventListener('click', () => {
+  board = initBoard();
+  talkElem.classList.add('hidden');
+  talkText.textContent = '';
+  render();
 });
-
-trashToggle.addEventListener('change', () => {
-  trashTalkEnabled = trashToggle.checked;
-});
-
-function showModal(message: string) {
-  modalTitle.textContent = message;
-  modal.classList.remove('hidden');
-}
 
 modalClose.addEventListener('click', () => {
   modal.classList.add('hidden');
-  resetGame();
+  board = initBoard();
+  render();
 });
 
-function resetGame() {
-  board = Array.from({ length: 3 }, () => Array(3).fill(''));
-  talkElem.classList.add('hidden');
-  talkText.textContent = '';
-  renderBoard();
+function showResult(result: string) {
+  modalTitle.textContent = result === 'draw' ? '平手了！' : result === 'X' ? '你贏了！' : 'AI 贏了！';
+  modal.classList.remove('hidden');
 }
-const soundPlayer = {
-  ai: new Audio('sounds/ai.mp3'),
-  click: new Audio('sounds/click.mp3'),
-};
 
-function renderBoard() {
-  boardElem.innerHTML = '';
-  board.forEach((row, r) => {
-    row.forEach((cell, c) => {
-      const btn = document.createElement('button');
-      btn.className = `
-        w-[100px] h-[100px]
-        text-8xl font-extrabold
-        border border-gray-300 dark:border-gray-700
-        rounded-xl shadow transition-transform duration-200 ease-in-out
-        hover:scale-105 active:scale-95
-        ${cell === 'X' ? 'text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-800' :
-          cell === 'O' ? 'text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-800' :
-              'text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'}
-        ${cell === '' ? 'bg-white dark:bg-gray-900' : 'bg-transparent'}
-      `;
-      btn.textContent = cell;
+function render() {
+  renderBoard({
+    board,
+    isThinking,
+    onClick: async (r, c) => {
+      if (isThinking || board[r][c]) return;
 
-      if (!cell && !checkWinner(board) && !isThinking) {
-        btn.onclick = async () => {
-          if (isThinking) return;
+      board[r][c] = 'X';
+      if (navigator.vibrate) navigator.vibrate(50);
+      if (soundEnabled) soundPlayer.click.play();
+      render();
 
-          board[r][c] = 'X';
-          if (navigator.vibrate) navigator.vibrate(50); // 玩家下棋
-          if (soundEnabled) soundPlayer.click.play();
-          renderBoard();
+      const result = checkWinner(board);
+      if (result) return showResult(result);
 
-          const result = checkWinner(board);
-          if (result) return showResult(result);
+      isThinking = true;
+      spinner.classList.remove('hidden');
 
-          isThinking = true;
-          spinner.classList.remove('hidden');
-
-          if (trashTalkEnabled) {
-
-            const randomTalk = trashTalks[Math.floor(Math.random() * trashTalks.length)];
-            showTrashTalk(randomTalk);
-
-            if ('speechSynthesis' in window && soundEnabled) {
-              const utterance = new SpeechSynthesisUtterance(randomTalk);
-              utterance.lang = 'zh-TW';
-              speechSynthesis.cancel();
-              speechSynthesis.speak(utterance);
-            }
-          } else {
-            talkElem.classList.add('hidden');
-          }
-
-          await new Promise(resolve => setTimeout(resolve, 1200));
-
-          const { row, col } = getBestMove(board);
-          board[row][col] = 'O';
-          if (navigator.vibrate) navigator.vibrate(50); // AI 下棋
-          if (soundEnabled) soundPlayer.ai.play();
-
-          isThinking = false;
-          spinner.classList.add('hidden');
-          renderBoard();
-
-          const newResult = checkWinner(board);
-          if (newResult) return showResult(newResult);
-        };
+      if (trashTalkEnabled) {
+        const text = trashTalks[Math.floor(Math.random() * trashTalks.length)];
+        showTrashTalk(text);
+        if (soundEnabled) speak(text);
       }
 
-      boardElem.appendChild(btn);
-    });
+      await new Promise(res => setTimeout(res, 1200));
+      const { row, col } = getBestMove(board);
+      board[row][col] = 'O';
+      if (navigator.vibrate) navigator.vibrate(50);
+      if (soundEnabled) soundPlayer.ai.play();
+
+      isThinking = false;
+      spinner.classList.add('hidden');
+      render();
+
+      const result2 = checkWinner(board);
+      if (result2) return showResult(result2);
+    }
   });
 }
 
-function showResult(result: string) {
-  if (result === 'draw') {
-    showModal('平手了！');
-  } else if (result === 'X') {
-    showModal('你贏了！');
-  } else {
-    showModal('AI 贏了！');
-  }
-}
-
-function showTrashTalk(text: string) {
-  const talk = document.getElementById('talk')!;
-  const talkText = document.getElementById('talk-text')!;
-
-  talkText.textContent = text;
-
-  talk.classList.remove('hidden', 'animate-fade-out');
-  talk.classList.add('animate-fade-in');
-
-  // 清除之前的 timeout（避免多重觸發）
-  clearTimeout((talk as any)._fadeOutTimer);
-
-  // 0.5 秒後自動淡出
-  (talk as any)._fadeOutTimer = setTimeout(() => {
-    talk.classList.remove('animate-fade-in');
-    talk.classList.add('animate-fade-out');
-
-    setTimeout(() => {
-      talk.classList.add('hidden');
-    }, 400); // 與 fade-out 動畫時間一致
-  }, 500);
-}
-
-resetBtn.addEventListener('click', resetGame);
-renderBoard();
+render();
